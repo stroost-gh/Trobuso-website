@@ -7,18 +7,19 @@ const secties = [
   {
     sectie: "hero",
     inhoud: JSON.stringify({
-      eyebrow: "Business consultancy · Projectmanagement · Agile",
+      eyebrow: "Business-IT alignment · Digitalisering · Projectmanagement · Agile",
       titel_voor_accent: "Wij maken",
       titel_accent: "complexe",
       titel_na_accent: "verandering",
       titel_italic: "werkbaar.",
       beschrijving:
-        "Wij optimaliseren bedrijfsprocessen en informatievoorziening in complexe, vaak bestuurlijk gevoelige omgevingen. Van knelpunten in ketensamenwerking tot strategische verbeterinitiatieven – wij vertalen ambitie naar resultaat.",
+        "Wij verbinden business en IT in complexe, vaak bestuurlijk gevoelige omgevingen. Van digitalisering van bedrijfsprocessen en informatievoorziening tot strategische Business-IT alignment – wij vertalen ambitie naar resultaat.",
       cta_primair: "Ontdek onze diensten",
       cta_secundair: "Plan een gesprek →",
       marquee: [
-        "Strategie", "Transformatie", "Scrum", "SAFe",
-        "Projectmanagement", "Kanban", "Leiderschap", "Verandermanagement",
+        "Business-IT alignment", "Digitalisering", "Strategie", "Transformatie",
+        "Scrum", "SAFe", "Projectmanagement", "Kanban",
+        "Leiderschap", "Verandermanagement",
       ],
     }),
   },
@@ -26,13 +27,13 @@ const secties = [
     sectie: "intro",
     inhoud: JSON.stringify({
       titel_voor_accent: "Wij verbinden",
-      titel_accent: "strategie",
+      titel_accent: "business",
       titel_na_accent: "aan",
-      titel_italic: "uitvoering.",
+      titel_italic: "technologie.",
       alinea_1:
-        "Trobuso staat voor resultaatgericht adviseren met een praktische instelling. Wij analyseren knelpunten, halen requirements op bij alle stakeholders – van uitvoering tot directie – en realiseren gedragen oplossingen die aansluiten bij de strategische doelen van de organisatie.",
+        "Trobuso staat voor resultaatgericht adviseren met een praktische instelling. Wij helpen organisaties hun business- en IT-strategie op één lijn te brengen, digitaliseren processen en informatievoorziening, en realiseren gedragen oplossingen die aansluiten bij de strategische doelen van de organisatie.",
       alinea_2:
-        "Met ruim 15 jaar ervaring in financiële dienstverlening, overheid, verzekeren en onderwijs brengen wij structuur aan in dynamische omgevingen. Wij combineren een analytisch scherp oog met kennis van Lean Six Sigma, agile werken (Scrum, SAFe) en ketenintegratie.",
+        "Met ruim 15 jaar ervaring in financiële dienstverlening, overheid, verzekeren en onderwijs brengen wij structuur aan in digitale transformaties. Wij combineren een analytisch scherp oog met kennis van Business-IT alignment, Lean Six Sigma, agile werken (Scrum, SAFe) en ketenintegratie.",
     }),
   },
   {
@@ -46,12 +47,13 @@ const secties = [
           nummer: "01",
           titel: "Business\nConsultancy",
           beschrijving:
-            "Wij analyseren processen, informatievoorziening en organisatie-inrichting. Met kennis van Lean Six Sigma en business analysis brengen wij knelpunten in kaart en ontwerpen wij gedragen oplossingen – van strategie tot uitvoering.",
+            "Wij analyseren processen, informatievoorziening en organisatie-inrichting. Met kennis van Business-IT alignment, Lean Six Sigma en business analysis brengen wij knelpunten in kaart en ontwerpen wij gedragen oplossingen – van digitalisering tot strategische transformatie.",
           bullets: [
+            "Business-IT alignment & strategisch advies",
+            "Digitalisering van bedrijfsprocessen",
             "Business analyse & requirementsmanagement",
             "Procesontwerp & -optimalisatie (Lean Six Sigma)",
             "Informatiemanagement & datalandschap",
-            "Risicomanagement & in-control",
             "Impactanalyse wet- en regelgeving",
           ],
         },
@@ -59,8 +61,9 @@ const secties = [
           nummer: "02",
           titel: "Project­\nmanagement",
           beschrijving:
-            "Wij leiden projecten en programma's waarin business, IT en ketenpartners samenkomen. Van projectplan en sturing tot leveranciersselectie en implementatie – met scherpe governance en heldere communicatie richting stakeholders en directie.",
+            "Wij leiden digitaliseringsprojecten en programma's waarin business, IT en ketenpartners samenkomen. Van projectplan en sturing tot leveranciersselectie en implementatie – met scherpe governance en heldere communicatie richting stakeholders en directie.",
           bullets: [
+            "Digitale transformatieprogramma's",
             "Project- en programmamanagement",
             "Projectplan, planning & sturing",
             "Leveranciersselectie & contractering",
@@ -104,7 +107,7 @@ const secties = [
       eyebrow: "03 — Over Trobuso",
       titel: "Mensen maken",
       titel_italic: "het verschil.",
-      alinea_1: "Trobuso is opgericht vanuit de overtuiging dat échte verandering ontstaat door mensen met elkaar te verbinden. Wij geloven in een pragmatische aanpak waarin analyse, ontwerp en uitvoering hand in hand gaan – en waarin draagvlak even belangrijk is als inhoud.",
+      alinea_1: "Trobuso is opgericht vanuit de overtuiging dat échte digitale verandering ontstaat door mensen, processen en technologie met elkaar te verbinden. Wij geloven in een pragmatische aanpak waarin Business-IT alignment, ontwerp en uitvoering hand in hand gaan – en waarin draagvlak even belangrijk is als inhoud.",
       alinea_2: "Onze adviseurs beschikken over een academische achtergrond (MSc Management Consultancy, BSc Bedrijfskundige Informatica) en bewezen ervaring bij toonaangevende organisaties in overheid, financiële dienstverlening, verzekeren en onderwijs.",
       stats: [
         { waarde: "15+", label: "jaar ervaring" },
@@ -142,8 +145,13 @@ const secties = [
       items: [
         {
           titel: "Business-IT alignment",
-          beschrijving: "Wij brengen business en IT bij elkaar rond gedeelde doelen. Van strategie en portfolio tot governance en samenwerking op de werkvloer – zodat investeringen in technologie aantoonbaar bijdragen aan organisatiedoelen.",
-          bullets: ["Enterprise- en domeinarchitectuur", "Portfolio- en demandmanagement", "Governance & besturing", "Ketensamenwerking"],
+          beschrijving: "Wij brengen business en IT bij elkaar rond gedeelde doelen. Van strategische roadmaps en portfoliomanagement tot governance en samenwerking op de werkvloer – zodat investeringen in technologie aantoonbaar bijdragen aan organisatiedoelen en digitale ambities.",
+          bullets: ["Enterprise- en domeinarchitectuur", "IT-strategie & roadmapping", "Portfolio- en demandmanagement", "Governance & besturing", "Ketensamenwerking"],
+        },
+        {
+          titel: "Digitalisering",
+          beschrijving: "Wij helpen organisaties handmatige processen te digitaliseren en informatievoorziening te moderniseren. Van het vervangen van legacy-systemen tot het inrichten van data-gedreven dashboards – met oog voor adoptie, haalbaarheid en een sluitende business case.",
+          bullets: ["Procesdigitalisering & automatisering", "Applicatie- en systeemvervanging", "Data-architectuur & dashboarding", "Digitale klantreizen", "Change management bij digitale transformatie"],
         },
         {
           titel: "Artificial Intelligence",

@@ -149,9 +149,9 @@ const secties = [
           bullets: ["Enterprise- en domeinarchitectuur", "IT-strategie & roadmapping", "Portfolio- en demandmanagement", "Governance & besturing", "Ketensamenwerking"],
         },
         {
-          titel: "Digitalisering",
-          beschrijving: "Wij helpen organisaties handmatige processen te digitaliseren en informatievoorziening te moderniseren. Van het vervangen van legacy-systemen tot het inrichten van data-gedreven dashboards – met oog voor adoptie, haalbaarheid en een sluitende business case.",
-          bullets: ["Procesdigitalisering & automatisering", "Applicatie- en systeemvervanging", "Data-architectuur & dashboarding", "Digitale klantreizen", "Change management bij digitale transformatie"],
+          titel: "Digitalisering & AI",
+          beschrijving: "Wij helpen organisaties handmatige processen te digitaliseren, informatievoorziening te moderniseren en AI waardevol in te zetten. Van het vervangen van legacy-systemen en het inrichten van data-gedreven dashboards tot het identificeren en implementeren van AI-toepassingen – met oog voor adoptie, haalbaarheid, ethiek en een sluitende business case.",
+          bullets: ["Procesdigitalisering & automatisering", "AI-strategie & use-case-selectie", "Applicatie- en systeemvervanging", "Data-architectuur & dashboarding", "Verantwoorde AI & AI Act compliance", "Digitale klantreizen", "Change management bij digitale transformatie"],
         },
         {
           titel: "Artificial Intelligence",

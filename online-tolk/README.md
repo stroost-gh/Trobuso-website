@@ -20,6 +20,14 @@ Italiaans, Oekraïens.
 
 ## Lokaal draaien
 
+### Snel starten (Windows)
+
+Dubbelklik op `start.bat` in de map `online-tolk`. Dat opent twee vensters
+(backend en frontend) en zet de eerste keer alles vanzelf klaar. Open daarna
+http://localhost:3000 zodra beide vensters klaar zijn.
+
+### Handmatig
+
 Backend:
 
 ```bash

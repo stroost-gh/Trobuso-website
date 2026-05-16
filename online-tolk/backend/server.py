@@ -12,8 +12,8 @@ Server -> client
   - {"type": "ondertitel", "id", "spreker": "A"|"B", "bronTaal", "doelTaal",
      "tekst", "vertaling", "definitief"}
 
-Milestone 2: spraakherkenning is lokaal (faster-whisper). Vertaling volgt in
-milestone 3; tot dan blijft het veld "vertaling" leeg.
+Milestone 3: spraakherkenning (faster-whisper) en vertaling (NLLB-200) draaien
+beide lokaal. Er gaat tijdens een gesprek niets naar het internet.
 """
 
 import asyncio
@@ -25,8 +25,10 @@ import websockets
 from config import HOST, POORT
 from segmentatie import Segmentator
 from transcriptie import Transcriptie
+from vertaling import Vertaling
 
 transcriptie: Transcriptie | None = None
+vertaler: Vertaling | None = None
 
 
 def pcm_naar_float(data: bytes) -> np.ndarray:
@@ -47,6 +49,7 @@ async def behandel_verbinding(ws):
             return
         spreker = "A" if bron == talen["A"] else "B"
         doel = talen["B"] if spreker == "A" else talen["A"]
+        vertaling = await asyncio.to_thread(vertaler.vertaal, tekst, bron, doel)
         await ws.send(
             json.dumps(
                 {
@@ -56,7 +59,7 @@ async def behandel_verbinding(ws):
                     "bronTaal": bron,
                     "doelTaal": doel,
                     "tekst": tekst,
-                    "vertaling": "",
+                    "vertaling": vertaling,
                     "definitief": definitief,
                 }
             )
@@ -88,10 +91,12 @@ async def behandel_verbinding(ws):
 
 
 async def main():
-    global transcriptie
+    global transcriptie, vertaler
     print("Whisper-model laden...")
     transcriptie = Transcriptie()
-    print("Model geladen.")
+    print("Vertaalmodel laden...")
+    vertaler = Vertaling()
+    print("Modellen geladen.")
     async with websockets.serve(behandel_verbinding, HOST, POORT, max_size=None):
         print(f"Tolk-dienst luistert op ws://{HOST}:{POORT}")
         await asyncio.Future()

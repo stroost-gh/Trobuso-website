@@ -10,8 +10,8 @@ er gaat niets naar het internet.
 - `frontend/` — Next.js-app: gesplitst scherm met live ondertitels, taalkeuze,
   microfoon-opname. Draait op `localhost`.
 - `backend/` — Python-dienst: WebSocket-server die audio ontvangt en ondertitels
-  terugstuurt. In deze skeleton-versie zijn spraakherkenning en vertaling nog
-  stubs; de lokale modellen (Whisper, NLLB) volgen in latere milestones.
+  terugstuurt. Spraakherkenning (faster-whisper) en vertaling (NLLB-200) draaien
+  lokaal; de modellen worden eenmalig gedownload en daarna gecachet.
 
 ## Ondersteunde talen
 
@@ -41,5 +41,5 @@ Open daarna http://localhost:3000.
 
 ## Status
 
-Milestone 1 — skeleton: frontend en backend praten via een lokale WebSocket;
-de vertaalpijplijn is nog een stub.
+Milestone 3: de volledige pijplijn draait lokaal — microfoon, spraakherkenning
+(faster-whisper), vertaling (NLLB-200) en het gesplitste ondertitelscherm.

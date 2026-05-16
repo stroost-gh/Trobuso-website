@@ -1,0 +1,142 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #0d1b2a;
+  color: #f5f7fa;
+  overflow: hidden;
+}
+
+/* Instelscherm */
+.instellen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.instellen h1 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.taalkeuze {
+  display: flex;
+  gap: 2rem;
+}
+
+.taalveld {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.taalveld label {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.taalveld select {
+  font-size: 1.25rem;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #2a3f55;
+  background: #16293c;
+  color: #f5f7fa;
+}
+
+.melding {
+  opacity: 0.7;
+}
+
+.melding-fout {
+  color: #ff9b8a;
+}
+
+/* Knoppen */
+.knop {
+  font-size: 1.2rem;
+  padding: 0.8rem 2.4rem;
+  border-radius: 0.6rem;
+  border: none;
+  background: #2874a6;
+  color: #fff;
+  cursor: pointer;
+}
+
+.knop:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.knop-klein {
+  font-size: 0.9rem;
+  padding: 0.4rem 1.1rem;
+}
+
+.knop-stop {
+  background: #a63a2a;
+}
+
+/* Gesplitst tolkscherm */
+.scherm {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.helft {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 3rem;
+  overflow: hidden;
+}
+
+.helft-boven {
+  transform: rotate(180deg);
+  border-bottom: 2px solid #2a3f55;
+}
+
+.helft-kop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  opacity: 0.7;
+  margin-bottom: 1rem;
+}
+
+.regels {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.9rem;
+}
+
+.regel {
+  font-size: 1.8rem;
+  line-height: 1.35;
+}
+
+.regel-voorlopig {
+  opacity: 0.5;
+}
+
+.spreker {
+  font-size: 0.85rem;
+  opacity: 0.55;
+  margin: 0 0.6rem;
+}

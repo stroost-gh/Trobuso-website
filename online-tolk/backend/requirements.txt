@@ -1,0 +1,6 @@
+websockets>=12.0
+
+# Volgt in milestone 2 (spraakherkenning) en 3 (vertaling):
+# faster-whisper>=1.0
+# transformers>=4.40
+# ctranslate2>=4.0

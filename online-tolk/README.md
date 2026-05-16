@@ -23,8 +23,9 @@ Italiaans, Oekraïens.
 ### Snel starten (Windows)
 
 Dubbelklik op `start.bat` in de map `online-tolk`. Dat opent twee vensters
-(backend en frontend) en zet de eerste keer alles vanzelf klaar. Open daarna
-http://localhost:3000 zodra beide vensters klaar zijn.
+(backend en frontend) en zet de eerste keer alles vanzelf klaar. In het
+start-venster verschijnt een menu om het hoofdscherm of een tweede scherm te
+openen, of om het netwerkadres voor een tablet of telefoon te tonen.
 
 ### Handmatig
 

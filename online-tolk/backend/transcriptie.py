@@ -16,18 +16,29 @@ class Transcriptie:
             WHISPER_MODEL, device=WHISPER_DEVICE, compute_type=WHISPER_COMPUTE
         )
 
-    def verwerk(self, audio: np.ndarray, toegestane_talen: list[str]):
+    def verwerk(
+        self,
+        audio: np.ndarray,
+        toegestane_talen: list[str],
+        geforceerde_taal: str | None = None,
+    ):
         """Transcribeer een audiosegment. Geeft (tekst, taalcode) terug.
 
-        De taal wordt automatisch herkend; valt die buiten de twee gekozen
-        talen, dan wordt teruggevallen op de eerste gekozen taal.
+        Met geforceerde_taal (videocall-modus, waar per bron bekend is wie
+        spreekt) wordt die taal gebruikt. Anders wordt de taal automatisch
+        herkend en bij twijfel teruggevallen op de eerste gekozen taal.
         """
         segments, info = self.model.transcribe(
             audio,
             beam_size=1,
-            language=None,
+            language=geforceerde_taal,
             vad_filter=False,
         )
         tekst = " ".join(s.text.strip() for s in segments).strip()
-        taal = info.language if info.language in toegestane_talen else toegestane_talen[0]
+        if geforceerde_taal:
+            taal = geforceerde_taal
+        elif info.language in toegestane_talen:
+            taal = info.language
+        else:
+            taal = toegestane_talen[0]
         return tekst, taal

@@ -2,9 +2,14 @@
 
 import { useCallback, useRef, useState } from "react";
 import { TALEN, taalNaam, isRtl } from "../lib/talen";
-import { OndertitelBericht, ServerBericht } from "../lib/protocol";
+import { Modus, OndertitelBericht, ServerBericht } from "../lib/protocol";
 import { TolkVerbinding } from "../lib/tolkVerbinding";
-import { AudioOpname } from "../lib/audio";
+import {
+  AudioBron,
+  AudioOpname,
+  microfoonStream,
+  tabbladStream,
+} from "../lib/audio";
 import { wsUrl } from "../lib/config";
 import { Helft } from "./Helft";
 import { KoppelOverlay } from "./KoppelOverlay";
@@ -41,6 +46,7 @@ function bouwTranscriptTekst(
 
 export default function TolkScherm() {
   const [fase, setFase] = useState<Fase>("instellen");
+  const [modus, setModus] = useState<Modus>("spreekkamer");
   const [taalA, setTaalA] = useState("nl");
   const [taalB, setTaalB] = useState("ar");
   const [verbonden, setVerbonden] = useState(false);
@@ -52,7 +58,7 @@ export default function TolkScherm() {
   const [foutmelding, setFoutmelding] = useState<string | null>(null);
 
   const verbindingRef = useRef<TolkVerbinding | null>(null);
-  const opnameRef = useRef<AudioOpname | null>(null);
+  const opnamesRef = useRef<AudioOpname[]>([]);
   const koppelcodeRef = useRef("");
 
   const opBericht = useCallback((bericht: ServerBericht) => {
@@ -70,16 +76,18 @@ export default function TolkScherm() {
       setTranscript((huidig) => {
         const zonder = huidig.filter((o) => o.id !== bericht.id);
         return [...zonder, { ...bericht, tijd: Date.now() }].sort(
-          (a, b) => a.id - b.id,
+          (a, b) => a.tijd - b.tijd,
         );
       });
     }
   }, []);
 
   async function ruimOp() {
-    await opnameRef.current?.stop();
+    for (const opname of opnamesRef.current) {
+      await opname.stop();
+    }
+    opnamesRef.current = [];
     verbindingRef.current?.sluit();
-    opnameRef.current = null;
     verbindingRef.current = null;
   }
 
@@ -90,7 +98,16 @@ export default function TolkScherm() {
     setKoppelcode("");
     koppelcodeRef.current = "";
     setAanHetStarten(true);
+
+    const streams: { stream: MediaStream; bron: AudioBron }[] = [];
     try {
+      if (modus === "videocall") {
+        streams.push({ stream: await tabbladStream(), bron: "B" });
+        streams.push({ stream: await microfoonStream(), bron: "A" });
+      } else {
+        streams.push({ stream: await microfoonStream(), bron: "A" });
+      }
+
       const verbinding = new TolkVerbinding(
         wsUrl(),
         opBericht,
@@ -106,17 +123,24 @@ export default function TolkScherm() {
       );
       verbindingRef.current = verbinding;
       await verbinding.verbind();
-      verbinding.stuurBericht({ type: "start", taalA, taalB });
+      verbinding.stuurBericht({ type: "start", taalA, taalB, modus });
 
-      const opname = new AudioOpname();
-      await opname.start((pcm) => verbinding.stuurAudio(pcm));
-      opnameRef.current = opname;
+      const opnames: AudioOpname[] = [];
+      for (const { stream, bron } of streams) {
+        const opname = new AudioOpname(stream, bron);
+        await opname.start((pcm) => verbinding.stuurAudio(pcm));
+        opnames.push(opname);
+      }
+      opnamesRef.current = opnames;
 
       setFase("actief");
     } catch {
       setFoutmelding(
-        "Kon niet starten. Draait de lokale tolk-dienst en is de microfoon toegestaan?",
+        modus === "videocall"
+          ? "Kon niet starten. Deel het tabblad met de videocall inclusief geluid en sta de microfoon toe."
+          : "Kon niet starten. Draait de lokale tolk-dienst en is de microfoon toegestaan?",
       );
+      streams.forEach((s) => s.stream.getTracks().forEach((t) => t.stop()));
       await ruimOp();
     } finally {
       setAanHetStarten(false);
@@ -150,12 +174,29 @@ export default function TolkScherm() {
   }
 
   if (fase === "instellen") {
+    const videocall = modus === "videocall";
     return (
       <main className="instellen">
         <h1>Online Tolk</h1>
+        <div className="moduskeuze">
+          <button
+            className={videocall ? "modusknop" : "modusknop actief"}
+            onClick={() => setModus("spreekkamer")}
+          >
+            Gesprek in de ruimte
+          </button>
+          <button
+            className={videocall ? "modusknop actief" : "modusknop"}
+            onClick={() => setModus("videocall")}
+          >
+            Videocall (Jitsi)
+          </button>
+        </div>
         <div className="taalkeuze">
           <div className="taalveld">
-            <label htmlFor="taalA">Taal onderzijde</label>
+            <label htmlFor="taalA">
+              {videocall ? "Uw taal" : "Taal onderzijde"}
+            </label>
             <select
               id="taalA"
               value={taalA}
@@ -169,7 +210,9 @@ export default function TolkScherm() {
             </select>
           </div>
           <div className="taalveld">
-            <label htmlFor="taalB">Taal bovenzijde</label>
+            <label htmlFor="taalB">
+              {videocall ? "Taal gesprekspartner" : "Taal bovenzijde"}
+            </label>
             <select
               id="taalB"
               value={taalB}
@@ -183,6 +226,12 @@ export default function TolkScherm() {
             </select>
           </div>
         </div>
+        {videocall && (
+          <p className="melding">
+            Bij starten kiest u het tabblad met de videocall; vink "tabblad-geluid
+            delen" aan.
+          </p>
+        )}
         <button
           className="knop"
           onClick={start}
@@ -244,7 +293,12 @@ export default function TolkScherm() {
 
   return (
     <div className="scherm">
-      <Helft taal={taalB} ondertitels={recent} boven />
+      <Helft
+        taal={taalB}
+        ondertitels={recent}
+        boven
+        gedraaid={modus === "spreekkamer"}
+      />
       <Helft
         taal={taalA}
         ondertitels={recent}

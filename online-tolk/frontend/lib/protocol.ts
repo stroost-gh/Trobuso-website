@@ -3,10 +3,15 @@
 
 export type Spreker = "A" | "B";
 
+// spreekkamer = een microfoon in de ruimte; videocall = microfoon plus het
+// geluid van de gedeelde videocall-tab als twee aparte sprekers.
+export type Modus = "spreekkamer" | "videocall";
+
 export interface StartBericht {
   type: "start";
   taalA: string;
   taalB: string;
+  modus: Modus;
 }
 
 export interface StopBericht {
@@ -42,12 +47,13 @@ export interface SessieBericht {
   type: "sessie";
   taalA: string;
   taalB: string;
+  modus: Modus;
   actief: boolean;
 }
 
 export interface OndertitelBericht {
   type: "ondertitel";
-  id: number;
+  id: string;
   spreker: Spreker;
   bronTaal: string;
   doelTaal: string;

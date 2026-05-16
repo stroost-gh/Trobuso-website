@@ -31,6 +31,26 @@ body {
   font-weight: 600;
 }
 
+.moduskeuze {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.modusknop {
+  font-size: 1rem;
+  padding: 0.55rem 1.4rem;
+  border-radius: 0.5rem;
+  border: 1px solid #2a3f55;
+  background: #16293c;
+  color: #f5f7fa;
+  cursor: pointer;
+}
+
+.modusknop.actief {
+  background: #2874a6;
+  border-color: #2874a6;
+}
+
 .taalkeuze {
   display: flex;
   gap: 2rem;
@@ -105,8 +125,11 @@ body {
 }
 
 .helft-boven {
-  transform: rotate(180deg);
   border-bottom: 2px solid #2a3f55;
+}
+
+.helft-gedraaid {
+  transform: rotate(180deg);
 }
 
 .helft-kop {

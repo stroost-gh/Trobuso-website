@@ -49,10 +49,24 @@ koppelinstructies in de twee gekozen gesprekstalen. Het tweede scherm koppelt
 door de QR-code te scannen of de code handmatig in te voeren; bij elk nieuw
 gesprek geldt een nieuwe code.
 
+## Modus
+
+Bij het starten kies je een modus:
+
+- **Gesprek in de ruimte** — een microfoon vangt beide sprekers op; de taal
+  bepaalt wie aan het woord is.
+- **Videocall (Jitsi)** — bedoeld voor een gesprek via een videocall. De app
+  vangt twee bronnen op: de eigen microfoon én het geluid van de gedeelde
+  videocall-tab. Bij starten kies je dat tabblad en vink je "tabblad-geluid
+  delen" aan. Elke bron is een vaste spreker, dus de vertaling is per kant
+  betrouwbaar. De call zelf loopt via Jitsi over het internet; alleen de
+  vertaalverwerking blijft lokaal.
+
 ## Status
 
-Milestone 6: de volledige pijplijn draait lokaal — microfoon, spraakherkenning
-(faster-whisper), vertaling (NLLB-200) en het gesplitste ondertitelscherm. Na
-afloop toont de app een transcript dat alleen op verzoek lokaal als tekstbestand
-te downloaden is. Een tweede scherm kan via een koppelcode (QR of handmatig)
-meekijken; de verbinding herstelt zich automatisch na een netwerkonderbreking.
+Milestone 7: de volledige pijplijn draait lokaal — microfoon, spraakherkenning
+(faster-whisper), vertaling (NLLB-200) en het gesplitste ondertitelscherm, in
+zowel spreekkamer- als videocall-modus. Na afloop toont de app een transcript
+dat alleen op verzoek lokaal als tekstbestand te downloaden is. Een tweede
+scherm kan via een koppelcode (QR of handmatig) meekijken; de verbinding
+herstelt zich automatisch na een netwerkonderbreking.

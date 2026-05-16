@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { OndertitelBericht, ServerBericht } from "../lib/protocol";
+import { Modus, OndertitelBericht, ServerBericht } from "../lib/protocol";
 import { TolkVerbinding } from "../lib/tolkVerbinding";
 import { wsUrl } from "../lib/config";
 import { Helft } from "./Helft";
@@ -12,6 +12,7 @@ import { Helft } from "./Helft";
 export default function KijkScherm() {
   const [taalA, setTaalA] = useState<string | null>(null);
   const [taalB, setTaalB] = useState<string | null>(null);
+  const [modus, setModus] = useState<Modus>("spreekkamer");
   const [actief, setActief] = useState(false);
   const [verbonden, setVerbonden] = useState(false);
   const [gemachtigd, setGemachtigd] = useState(false);
@@ -29,6 +30,7 @@ export default function KijkScherm() {
       if (bericht.type === "sessie") {
         setTaalA(bericht.taalA);
         setTaalB(bericht.taalB);
+        setModus(bericht.modus);
         setActief(bericht.actief);
         if (bericht.actief) setOndertitels([]);
       } else if (bericht.type === "ondertitel") {
@@ -126,7 +128,12 @@ export default function KijkScherm() {
 
   return (
     <div className="scherm">
-      <Helft taal={taalB} ondertitels={recent} boven />
+      <Helft
+        taal={taalB}
+        ondertitels={recent}
+        boven
+        gedraaid={modus === "spreekkamer"}
+      />
       <Helft taal={taalA} ondertitels={recent} />
     </div>
   );

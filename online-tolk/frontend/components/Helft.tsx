@@ -9,16 +9,22 @@ export function Helft({
   taal,
   ondertitels,
   boven,
+  gedraaid,
   rechtsBoven,
 }: {
   taal: string;
   ondertitels: OndertitelBericht[];
   boven?: boolean;
+  gedraaid?: boolean;
   rechtsBoven?: React.ReactNode;
 }) {
   const rtl = isRtl(taal);
+  const klassen = ["helft"];
+  if (boven) klassen.push("helft-boven");
+  if (gedraaid) klassen.push("helft-gedraaid");
+
   return (
-    <section className={boven ? "helft helft-boven" : "helft"}>
+    <section className={klassen.join(" ")}>
       <div className="helft-kop">
         <span>{taalNaam(taal)}</span>
         {rechtsBoven}

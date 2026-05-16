@@ -1,2 +1,0 @@
-# Batch-scripts hebben Windows-regeleinden (CRLF) nodig, anders kan goto falen.
-*.bat text eol=crlf

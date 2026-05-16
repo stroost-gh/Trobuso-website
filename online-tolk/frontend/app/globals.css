@@ -31,6 +31,12 @@ body {
   border-bottom: 1px solid #2c2f63;
 }
 
+.merk-logo {
+  height: 42px;
+  width: auto;
+  margin-right: 0.85rem;
+}
+
 .merk {
   display: flex;
   flex-direction: column;

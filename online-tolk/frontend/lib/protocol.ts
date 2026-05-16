@@ -13,11 +13,29 @@ export interface StopBericht {
   type: "stop";
 }
 
-export type ClientBericht = StartBericht | StopBericht;
+export interface KoppelBericht {
+  type: "koppel";
+  code: string;
+}
+
+export type ClientBericht = StartBericht | StopBericht | KoppelBericht;
 
 export interface StatusBericht {
   type: "status";
   staat: "verbonden";
+}
+
+export interface KoppelcodeBericht {
+  type: "koppelcode";
+  code: string;
+}
+
+export interface KoppelOkBericht {
+  type: "koppel_ok";
+}
+
+export interface KoppelFoutBericht {
+  type: "koppel_fout";
 }
 
 export interface SessieBericht {
@@ -38,4 +56,10 @@ export interface OndertitelBericht {
   definitief: boolean;
 }
 
-export type ServerBericht = StatusBericht | SessieBericht | OndertitelBericht;
+export type ServerBericht =
+  | StatusBericht
+  | KoppelcodeBericht
+  | KoppelOkBericht
+  | KoppelFoutBericht
+  | SessieBericht
+  | OndertitelBericht;

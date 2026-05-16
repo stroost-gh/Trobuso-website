@@ -245,3 +245,33 @@ body {
   gap: 0.6rem;
   font-size: 1.05rem;
 }
+
+/* Koppelcode */
+.koppelcode-blok {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.koppelcode-label {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.koppelcode {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.3rem;
+}
+
+.code-invoer {
+  width: 12rem;
+  padding: 0.6rem;
+  font-size: 2rem;
+  letter-spacing: 0.4rem;
+  text-align: center;
+  border-radius: 0.5rem;
+  border: 1px solid #2a3f55;
+  background: #16293c;
+  color: #f5f7fa;
+}

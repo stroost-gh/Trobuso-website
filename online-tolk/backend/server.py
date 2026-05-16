@@ -6,19 +6,24 @@ Client -> server
   - tekstframe  {"type": "start", "taalA": "nl", "taalB": "ar"}
   - binair frame  mono PCM 16-bit, 16 kHz
   - tekstframe  {"type": "stop"}
+  - tekstframe  {"type": "koppel", "code": "123456"}   (tweede scherm)
 
-Server -> client (naar alle verbonden schermen)
+Server -> client
   - {"type": "status", "staat": "verbonden"}
+  - {"type": "koppelcode", "code": "123456"}   (alleen naar het hoofdscherm)
+  - {"type": "koppel_ok"} / {"type": "koppel_fout"}
   - {"type": "sessie", "taalA", "taalB", "actief"}
-  - {"type": "ondertitel", "id", "spreker": "A"|"B", "bronTaal", "doelTaal",
+  - {"type": "ondertitel", "id", "spreker", "bronTaal", "doelTaal",
      "tekst", "vertaling", "definitief"}
 
-Een gesprek is een enkele gedeelde sessie. Het hoofdscherm stuurt audio; extra
-schermen (bv. een tablet) verbinden alleen mee en ontvangen dezelfde ondertitels.
+Een gesprek is een enkele gedeelde sessie. Het hoofdscherm stuurt audio en
+krijgt een koppelcode; extra schermen (bv. een tablet) moeten die code opgeven
+voordat ze ondertitels ontvangen. Bij elk nieuw gesprek geldt een nieuwe code.
 """
 
 import asyncio
 import json
+import random
 
 import numpy as np
 import websockets
@@ -32,7 +37,14 @@ transcriptie: Transcriptie | None = None
 vertaler: Vertaling | None = None
 
 verbindingen: set = set()
-sessie = {"taalA": "nl", "taalB": "ar", "actief": False, "segment_id": 0}
+gemachtigd: set = set()
+sessie = {
+    "taalA": "nl",
+    "taalB": "ar",
+    "actief": False,
+    "segment_id": 0,
+    "koppelcode": "",
+}
 
 
 def pcm_naar_float(data: bytes) -> np.ndarray:
@@ -48,13 +60,17 @@ def sessie_bericht() -> dict:
     }
 
 
+async def stuur(ws, bericht: dict):
+    try:
+        await ws.send(json.dumps(bericht))
+    except Exception:
+        verbindingen.discard(ws)
+        gemachtigd.discard(ws)
+
+
 async def broadcast(bericht: dict):
-    data = json.dumps(bericht)
-    for ws in list(verbindingen):
-        try:
-            await ws.send(data)
-        except Exception:
-            verbindingen.discard(ws)
+    for ws in list(gemachtigd):
+        await stuur(ws, bericht)
 
 
 async def stuur_ondertitel(sid: int, audio: np.ndarray, definitief: bool):
@@ -82,8 +98,7 @@ async def stuur_ondertitel(sid: int, audio: np.ndarray, definitief: bool):
 async def behandel_verbinding(ws):
     verbindingen.add(ws)
     segmentator = Segmentator()
-    await ws.send(json.dumps({"type": "status", "staat": "verbonden"}))
-    await ws.send(json.dumps(sessie_bericht()))
+    await stuur(ws, {"type": "status", "staat": "verbonden"})
     try:
         async for bericht in ws:
             if isinstance(bericht, bytes):
@@ -102,18 +117,36 @@ async def behandel_verbinding(ws):
                 continue
 
             data = json.loads(bericht)
-            if data.get("type") == "start":
+            soort = data.get("type")
+
+            if soort == "start":
+                # Nieuw gesprek: oude tweede schermen moeten opnieuw koppelen.
+                for oud in list(gemachtigd):
+                    if oud is not ws:
+                        await stuur(oud, {"type": "koppel_fout"})
                 sessie["taalA"] = data.get("taalA", "nl")
                 sessie["taalB"] = data.get("taalB", "ar")
                 sessie["actief"] = True
                 sessie["segment_id"] = 0
+                sessie["koppelcode"] = f"{random.randint(0, 999999):06d}"
                 segmentator = Segmentator()
-                await broadcast(sessie_bericht())
-            elif data.get("type") == "stop":
+                gemachtigd.clear()
+                gemachtigd.add(ws)
+                await stuur(ws, {"type": "koppelcode", "code": sessie["koppelcode"]})
+                await stuur(ws, sessie_bericht())
+            elif soort == "stop":
                 sessie["actief"] = False
                 await broadcast(sessie_bericht())
+            elif soort == "koppel":
+                if sessie["actief"] and data.get("code") == sessie["koppelcode"]:
+                    gemachtigd.add(ws)
+                    await stuur(ws, {"type": "koppel_ok"})
+                    await stuur(ws, sessie_bericht())
+                else:
+                    await stuur(ws, {"type": "koppel_fout"})
     finally:
         verbindingen.discard(ws)
+        gemachtigd.discard(ws)
 
 
 async def main():

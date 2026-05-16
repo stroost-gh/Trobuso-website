@@ -44,13 +44,15 @@ Open daarna http://localhost:3000.
 Een tablet of telefoon op hetzelfde lokale netwerk kan als tweede (meekijkend)
 scherm dienen via de route `/scherm`. Open de app op het hoofdscherm dan wél via
 het netwerkadres van de computer (bv. `http://192.168.1.5:3000`) in plaats van
-`localhost`; de knop "Tweede scherm" toont dan een QR-code en koppelinstructies
-in de twee gekozen gesprekstalen.
+`localhost`. De knop "Tweede scherm" toont een koppelcode en een QR-code met
+koppelinstructies in de twee gekozen gesprekstalen. Het tweede scherm koppelt
+door de QR-code te scannen of de code handmatig in te voeren; bij elk nieuw
+gesprek geldt een nieuwe code.
 
 ## Status
 
-Milestone 5: de volledige pijplijn draait lokaal — microfoon, spraakherkenning
+Milestone 6: de volledige pijplijn draait lokaal — microfoon, spraakherkenning
 (faster-whisper), vertaling (NLLB-200) en het gesplitste ondertitelscherm. Na
 afloop toont de app een transcript dat alleen op verzoek lokaal als tekstbestand
-te downloaden is. Een tweede scherm kan meekijken; de verbinding herstelt zich
-automatisch na een netwerkonderbreking.
+te downloaden is. Een tweede scherm kan via een koppelcode (QR of handmatig)
+meekijken; de verbinding herstelt zich automatisch na een netwerkonderbreking.

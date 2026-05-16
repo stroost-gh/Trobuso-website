@@ -1,14 +1,14 @@
 // Instructie voor het koppelen van een tweede scherm, per taal. Wordt in de
 // twee gekozen gesprekstalen getoond.
 export const KOPPEL_INSTRUCTIE: Record<string, string> = {
-  nl: "Scan de QR-code met uw telefoon of tablet om het tweede scherm te openen.",
-  en: "Scan the QR code with your phone or tablet to open the second screen.",
-  de: "Scannen Sie den QR-Code mit Ihrem Telefon oder Tablet, um den zweiten Bildschirm zu öffnen.",
-  pl: "Zeskanuj kod QR telefonem lub tabletem, aby otworzyć drugi ekran.",
-  ar: "امسح رمز QR بهاتفك أو جهازك اللوحي لفتح الشاشة الثانية.",
-  fr: "Scannez le code QR avec votre téléphone ou tablette pour ouvrir le deuxième écran.",
-  es: "Escanee el código QR con su teléfono o tableta para abrir la segunda pantalla.",
-  pt: "Digitalize o código QR com o seu telemóvel ou tablet para abrir o segundo ecrã.",
-  it: "Inquadra il codice QR con il telefono o il tablet per aprire il secondo schermo.",
-  uk: "Відскануйте QR-код за допомогою телефону або планшета, щоб відкрити другий екран.",
+  nl: "Scan de QR-code met de telefoon of tablet, of voer de koppelcode handmatig in.",
+  en: "Scan the QR code with the phone or tablet, or enter the pairing code manually.",
+  de: "Scannen Sie den QR-Code mit dem Telefon oder Tablet oder geben Sie den Kopplungscode manuell ein.",
+  pl: "Zeskanuj kod QR telefonem lub tabletem albo wprowadź kod parowania ręcznie.",
+  ar: "امسح رمز QR بالهاتف أو الجهاز اللوحي، أو أدخل رمز الإقران يدويًا.",
+  fr: "Scannez le code QR avec le téléphone ou la tablette, ou saisissez le code d'association manuellement.",
+  es: "Escanee el código QR con el teléfono o la tableta, o introduzca el código de vinculación manualmente.",
+  pt: "Digitalize o código QR com o telemóvel ou tablet, ou introduza o código de associação manualmente.",
+  it: "Scansiona il codice QR con il telefono o il tablet, oppure inserisci il codice di abbinamento manualmente.",
+  uk: "Відскануйте QR-код телефоном або планшетом, або введіть код підключення вручну.",
 };

@@ -46,14 +46,21 @@ export default function TolkScherm() {
   const [verbonden, setVerbonden] = useState(false);
   const [aanHetStarten, setAanHetStarten] = useState(false);
   const [koppelOpen, setKoppelOpen] = useState(false);
+  const [koppelcode, setKoppelcode] = useState("");
   const [ondertitels, setOndertitels] = useState<OndertitelBericht[]>([]);
   const [transcript, setTranscript] = useState<TranscriptRegel[]>([]);
   const [foutmelding, setFoutmelding] = useState<string | null>(null);
 
   const verbindingRef = useRef<TolkVerbinding | null>(null);
   const opnameRef = useRef<AudioOpname | null>(null);
+  const koppelcodeRef = useRef("");
 
   const opBericht = useCallback((bericht: ServerBericht) => {
+    if (bericht.type === "koppelcode") {
+      koppelcodeRef.current = bericht.code;
+      setKoppelcode(bericht.code);
+      return;
+    }
     if (bericht.type !== "ondertitel") return;
     setOndertitels((huidig) => {
       const zonder = huidig.filter((o) => o.id !== bericht.id);
@@ -80,9 +87,23 @@ export default function TolkScherm() {
     setFoutmelding(null);
     setOndertitels([]);
     setTranscript([]);
+    setKoppelcode("");
+    koppelcodeRef.current = "";
     setAanHetStarten(true);
     try {
-      const verbinding = new TolkVerbinding(wsUrl(), opBericht, setVerbonden);
+      const verbinding = new TolkVerbinding(
+        wsUrl(),
+        opBericht,
+        setVerbonden,
+        () => {
+          if (koppelcodeRef.current) {
+            verbinding.stuurBericht({
+              type: "koppel",
+              code: koppelcodeRef.current,
+            });
+          }
+        },
+      );
       verbindingRef.current = verbinding;
       await verbinding.verbind();
       verbinding.stuurBericht({ type: "start", taalA, taalB });
@@ -246,6 +267,7 @@ export default function TolkScherm() {
         <KoppelOverlay
           taalA={taalA}
           taalB={taalB}
+          koppelcode={koppelcode}
           opSluiten={() => setKoppelOpen(false)}
         />
       )}

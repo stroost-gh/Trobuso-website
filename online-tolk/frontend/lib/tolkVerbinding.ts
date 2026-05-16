@@ -4,7 +4,8 @@ const MAX_WACHT_MS = 8000;
 
 // WebSocket-verbinding met de tolk-dienst. Bij een onbedoelde verbreking
 // (bijv. wegvallend wifi) wordt automatisch opnieuw verbonden met oplopende
-// wachttijd; een bewuste sluit() stopt dat.
+// wachttijd; een bewuste sluit() stopt dat. Na een herverbinding wordt
+// opHeropend aangeroepen, zodat de client zich opnieuw kan koppelen.
 export class TolkVerbinding {
   private ws: WebSocket | null = null;
   private bewustGesloten = false;
@@ -14,6 +15,7 @@ export class TolkVerbinding {
     private url: string,
     private opBericht: (bericht: ServerBericht) => void,
     private opVerbindingsstatus: (verbonden: boolean) => void,
+    private opHeropend?: () => void,
   ) {}
 
   verbind(): Promise<void> {
@@ -55,7 +57,10 @@ export class TolkVerbinding {
     this.pogingen += 1;
     setTimeout(() => {
       if (this.bewustGesloten) return;
-      this.ws = this.maakWebSocket(() => this.opVerbindingsstatus(true));
+      this.ws = this.maakWebSocket(() => {
+        this.opVerbindingsstatus(true);
+        this.opHeropend?.();
+      });
     }, wacht);
   }
 

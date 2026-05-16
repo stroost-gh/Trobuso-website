@@ -41,5 +41,7 @@ Open daarna http://localhost:3000.
 
 ## Status
 
-Milestone 3: de volledige pijplijn draait lokaal — microfoon, spraakherkenning
-(faster-whisper), vertaling (NLLB-200) en het gesplitste ondertitelscherm.
+Milestone 4: de volledige pijplijn draait lokaal — microfoon, spraakherkenning
+(faster-whisper), vertaling (NLLB-200) en het gesplitste ondertitelscherm. Na
+afloop van een gesprek toont de app een transcript dat alleen op verzoek lokaal
+als tekstbestand te downloaden is.

@@ -8,10 +8,38 @@ import { AudioOpname } from "../lib/audio";
 
 const WS_URL = process.env.NEXT_PUBLIC_TOLK_WS ?? "ws://127.0.0.1:8765";
 
-type Fase = "instellen" | "actief";
+type Fase = "instellen" | "actief" | "transcript";
+
+interface TranscriptRegel extends OndertitelBericht {
+  tijd: number;
+}
 
 function tekstVoor(o: OndertitelBericht, leesTaal: string): string {
   return o.bronTaal === leesTaal ? o.tekst : o.vertaling;
+}
+
+function tijdLabel(ms: number): string {
+  return new Date(ms).toLocaleTimeString("nl-NL");
+}
+
+function bouwTranscriptTekst(
+  regels: TranscriptRegel[],
+  taalA: string,
+  taalB: string,
+): string {
+  const kop = [
+    "Online Tolk — transcript",
+    `Talen: ${taalNaam(taalA)} <-> ${taalNaam(taalB)}`,
+    `Datum: ${new Date().toLocaleString("nl-NL")}`,
+    "",
+  ];
+  const lijst = regels.map((r) =>
+    [
+      `[${tijdLabel(r.tijd)}] Spreker ${r.spreker} (${taalNaam(r.bronTaal)}): ${r.tekst}`,
+      `           Vertaling (${taalNaam(r.doelTaal)}): ${r.vertaling}`,
+    ].join("\n"),
+  );
+  return [...kop, ...lijst].join("\n") + "\n";
 }
 
 export default function TolkScherm() {
@@ -19,17 +47,26 @@ export default function TolkScherm() {
   const [taalA, setTaalA] = useState("nl");
   const [taalB, setTaalB] = useState("ar");
   const [verbonden, setVerbonden] = useState(false);
+  const [aanHetStarten, setAanHetStarten] = useState(false);
   const [ondertitels, setOndertitels] = useState<OndertitelBericht[]>([]);
+  const [transcript, setTranscript] = useState<TranscriptRegel[]>([]);
   const [foutmelding, setFoutmelding] = useState<string | null>(null);
 
   const verbindingRef = useRef<TolkVerbinding | null>(null);
   const opnameRef = useRef<AudioOpname | null>(null);
 
   const opBericht = useCallback((bericht: ServerBericht) => {
-    if (bericht.type === "ondertitel") {
-      setOndertitels((huidig) => {
+    if (bericht.type !== "ondertitel") return;
+    setOndertitels((huidig) => {
+      const zonder = huidig.filter((o) => o.id !== bericht.id);
+      return [...zonder, bericht].slice(-30);
+    });
+    if (bericht.definitief) {
+      setTranscript((huidig) => {
         const zonder = huidig.filter((o) => o.id !== bericht.id);
-        return [...zonder, bericht].slice(-30);
+        return [...zonder, { ...bericht, tijd: Date.now() }].sort(
+          (a, b) => a.id - b.id,
+        );
       });
     }
   }, []);
@@ -44,6 +81,8 @@ export default function TolkScherm() {
   async function start() {
     setFoutmelding(null);
     setOndertitels([]);
+    setTranscript([]);
+    setAanHetStarten(true);
     try {
       const verbinding = new TolkVerbinding(WS_URL, opBericht, setVerbonden);
       await verbinding.verbind();
@@ -60,13 +99,34 @@ export default function TolkScherm() {
         "Kon niet starten. Draait de lokale tolk-dienst en is de microfoon toegestaan?",
       );
       await ruimOp();
+    } finally {
+      setAanHetStarten(false);
     }
   }
 
   async function stop() {
     verbindingRef.current?.stuurBericht({ type: "stop" });
     await ruimOp();
+    setFase("transcript");
+  }
+
+  function nieuwGesprek() {
+    setTranscript([]);
+    setOndertitels([]);
+    setFoutmelding(null);
     setFase("instellen");
+  }
+
+  function downloadTranscript() {
+    const tekst = bouwTranscriptTekst(transcript, taalA, taalB);
+    const blob = new Blob([tekst], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const stempel = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "");
+    const anker = document.createElement("a");
+    anker.href = url;
+    anker.download = `tolk-transcript-${stempel}.txt`;
+    anker.click();
+    URL.revokeObjectURL(url);
   }
 
   if (fase === "instellen") {
@@ -103,13 +163,59 @@ export default function TolkScherm() {
             </select>
           </div>
         </div>
-        <button className="knop" onClick={start} disabled={taalA === taalB}>
-          Gesprek starten
+        <button
+          className="knop"
+          onClick={start}
+          disabled={taalA === taalB || aanHetStarten}
+        >
+          {aanHetStarten ? "Verbinden..." : "Gesprek starten"}
         </button>
         {taalA === taalB && (
           <p className="melding">Kies twee verschillende talen.</p>
         )}
         {foutmelding && <p className="melding melding-fout">{foutmelding}</p>}
+      </main>
+    );
+  }
+
+  if (fase === "transcript") {
+    return (
+      <main className="transcript">
+        <h1>Transcript</h1>
+        <p className="melding">
+          {transcript.length > 0
+            ? `${transcript.length} uitingen — ${taalNaam(taalA)} en ${taalNaam(taalB)}`
+            : "Er is geen gesprek opgenomen."}
+        </p>
+        <div className="transcript-lijst">
+          {transcript.map((r) => (
+            <div key={r.id} className="transcript-regel">
+              <div className="transcript-meta">
+                {tijdLabel(r.tijd)} · spreker {r.spreker} ·{" "}
+                {taalNaam(r.bronTaal)}
+              </div>
+              <p dir={isRtl(r.bronTaal) ? "rtl" : "ltr"}>{r.tekst}</p>
+              <p
+                className="transcript-vertaling"
+                dir={isRtl(r.doelTaal) ? "rtl" : "ltr"}
+              >
+                {r.vertaling}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div className="transcript-acties">
+          <button
+            className="knop"
+            onClick={downloadTranscript}
+            disabled={transcript.length === 0}
+          >
+            Transcript downloaden
+          </button>
+          <button className="knop knop-stop" onClick={nieuwGesprek}>
+            Nieuw gesprek
+          </button>
+        </div>
       </main>
     );
   }

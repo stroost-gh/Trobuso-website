@@ -140,3 +140,51 @@ body {
   opacity: 0.55;
   margin: 0 0.6rem;
 }
+
+/* Transcriptscherm */
+.transcript {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem 3rem;
+}
+
+.transcript h1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.transcript-lijst {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-right: 1rem;
+}
+
+.transcript-regel {
+  border-left: 3px solid #2874a6;
+  padding-left: 1rem;
+}
+
+.transcript-meta {
+  font-size: 0.8rem;
+  opacity: 0.5;
+  margin-bottom: 0.3rem;
+}
+
+.transcript-regel p {
+  font-size: 1.15rem;
+  line-height: 1.4;
+}
+
+.transcript-vertaling {
+  opacity: 0.65;
+}
+
+.transcript-acties {
+  display: flex;
+  gap: 1rem;
+}

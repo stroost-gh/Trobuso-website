@@ -27,7 +27,10 @@ export default function TolkScherm() {
 
   const opBericht = useCallback((bericht: ServerBericht) => {
     if (bericht.type === "ondertitel") {
-      setOndertitels((huidig) => [...huidig, bericht].slice(-30));
+      setOndertitels((huidig) => {
+        const zonder = huidig.filter((o) => o.id !== bericht.id);
+        return [...zonder, bericht].slice(-30);
+      });
     }
   }, []);
 
@@ -156,16 +159,18 @@ function Helft({
         )}
       </div>
       <div className="regels">
-        {ondertitels.map((o) => (
-          <p
-            key={`${o.id}-${o.definitief}`}
-            className={o.definitief ? "regel" : "regel regel-voorlopig"}
-            dir={rtl ? "rtl" : "ltr"}
-          >
-            <span className="spreker">spreker {o.spreker}</span>
-            {tekstVoor(o, taal)}
-          </p>
-        ))}
+        {ondertitels
+          .filter((o) => tekstVoor(o, taal).length > 0)
+          .map((o) => (
+            <p
+              key={o.id}
+              className={o.definitief ? "regel" : "regel regel-voorlopig"}
+              dir={rtl ? "rtl" : "ltr"}
+            >
+              <span className="spreker">spreker {o.spreker}</span>
+              {tekstVoor(o, taal)}
+            </p>
+          ))}
       </div>
     </section>
   );

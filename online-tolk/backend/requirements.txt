@@ -1,6 +1,7 @@
 websockets>=12.0
+faster-whisper>=1.0
+numpy>=1.24
 
-# Volgt in milestone 2 (spraakherkenning) en 3 (vertaling):
-# faster-whisper>=1.0
+# Volgt in milestone 3 (lokale vertaling):
 # transformers>=4.40
 # ctranslate2>=4.0

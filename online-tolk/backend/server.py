@@ -12,66 +12,86 @@ Server -> client
   - {"type": "ondertitel", "id", "spreker": "A"|"B", "bronTaal", "doelTaal",
      "tekst", "vertaling", "definitief"}
 
-In deze skeleton-versie zijn spraakherkenning en vertaling nog stubs. Milestone 2
-voegt lokale spraakherkenning (Whisper) toe, milestone 3 lokale vertaling (NLLB).
+Milestone 2: spraakherkenning is lokaal (faster-whisper). Vertaling volgt in
+milestone 3; tot dan blijft het veld "vertaling" leeg.
 """
 
 import asyncio
 import json
 
+import numpy as np
 import websockets
 
-from config import HOST, POORT, SAMPLE_RATE
+from config import HOST, POORT
+from segmentatie import Segmentator
+from transcriptie import Transcriptie
 
-# Hoeveel audio (in bytes) we ontvangen voordat de stub een ondertitel teruggeeft.
-# 2 seconden mono PCM16 op 16 kHz = SAMPLE_RATE * 2 bytes/sample * 2 sec.
-STUB_DREMPEL = SAMPLE_RATE * 2 * 2
+transcriptie: Transcriptie | None = None
+
+
+def pcm_naar_float(data: bytes) -> np.ndarray:
+    return np.frombuffer(data, dtype=np.int16).astype(np.float32) / 32768.0
 
 
 async def behandel_verbinding(ws):
     talen = {"A": "nl", "B": "ar"}
-    audio_bytes = 0
-    teller = 0
+    segmentator = Segmentator()
+    segment_id = 0
 
     await ws.send(json.dumps({"type": "status", "staat": "verbonden"}))
 
+    async def stuur_ondertitel(sid: int, audio: np.ndarray, definitief: bool):
+        toegestaan = [talen["A"], talen["B"]]
+        tekst, bron = await asyncio.to_thread(transcriptie.verwerk, audio, toegestaan)
+        if not tekst:
+            return
+        spreker = "A" if bron == talen["A"] else "B"
+        doel = talen["B"] if spreker == "A" else talen["A"]
+        await ws.send(
+            json.dumps(
+                {
+                    "type": "ondertitel",
+                    "id": sid,
+                    "spreker": spreker,
+                    "bronTaal": bron,
+                    "doelTaal": doel,
+                    "tekst": tekst,
+                    "vertaling": "",
+                    "definitief": definitief,
+                }
+            )
+        )
+
     async for bericht in ws:
         if isinstance(bericht, bytes):
-            audio_bytes += len(bericht)
-            if audio_bytes >= STUB_DREMPEL:
-                audio_bytes = 0
-                teller += 1
-                spreker = "A" if teller % 2 else "B"
-                bron = talen[spreker]
-                doel = talen["B"] if spreker == "A" else talen["A"]
-                await ws.send(
-                    json.dumps(
-                        {
-                            "type": "ondertitel",
-                            "id": teller,
-                            "spreker": spreker,
-                            "bronTaal": bron,
-                            "doelTaal": doel,
-                            "tekst": f"[stub] herkende spraak {teller}",
-                            "vertaling": f"[stub] vertaling {teller}",
-                            "definitief": True,
-                        }
-                    )
-                )
+            actie = segmentator.voeg_toe(pcm_naar_float(bericht))
+            if actie == "interim":
+                audio = segmentator.audio()
+                if audio is not None:
+                    await stuur_ondertitel(segment_id + 1, audio, False)
+            elif actie == "definitief":
+                segment_id += 1
+                audio = segmentator.neem_segment()
+                if audio is not None:
+                    await stuur_ondertitel(segment_id, audio, True)
             continue
 
         data = json.loads(bericht)
         if data.get("type") == "start":
             talen["A"] = data.get("taalA", "nl")
             talen["B"] = data.get("taalB", "ar")
-            audio_bytes = 0
-            teller = 0
+            segmentator = Segmentator()
+            segment_id = 0
             await ws.send(json.dumps({"type": "status", "staat": "luistert"}))
         elif data.get("type") == "stop":
             await ws.send(json.dumps({"type": "status", "staat": "gestopt"}))
 
 
 async def main():
+    global transcriptie
+    print("Whisper-model laden...")
+    transcriptie = Transcriptie()
+    print("Model geladen.")
     async with websockets.serve(behandel_verbinding, HOST, POORT, max_size=None):
         print(f"Tolk-dienst luistert op ws://{HOST}:{POORT}")
         await asyncio.Future()

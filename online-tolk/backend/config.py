@@ -1,4 +1,6 @@
-HOST = "127.0.0.1"
+# 0.0.0.0 zodat een tweede scherm (tablet/telefoon) op hetzelfde lokale
+# netwerk verbinding kan maken. Het verkeer blijft binnen het LAN.
+HOST = "0.0.0.0"
 POORT = 8765
 
 # Audio dat de frontend stuurt: mono PCM 16-bit op 16 kHz.

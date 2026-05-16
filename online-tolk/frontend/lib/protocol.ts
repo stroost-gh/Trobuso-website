@@ -17,7 +17,14 @@ export type ClientBericht = StartBericht | StopBericht;
 
 export interface StatusBericht {
   type: "status";
-  staat: "verbonden" | "luistert" | "gestopt";
+  staat: "verbonden";
+}
+
+export interface SessieBericht {
+  type: "sessie";
+  taalA: string;
+  taalB: string;
+  actief: boolean;
 }
 
 export interface OndertitelBericht {
@@ -31,4 +38,4 @@ export interface OndertitelBericht {
   definitief: boolean;
 }
 
-export type ServerBericht = StatusBericht | OndertitelBericht;
+export type ServerBericht = StatusBericht | SessieBericht | OndertitelBericht;

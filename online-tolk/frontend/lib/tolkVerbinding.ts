@@ -1,7 +1,14 @@
 import { ClientBericht, ServerBericht } from "./protocol";
 
+const MAX_WACHT_MS = 8000;
+
+// WebSocket-verbinding met de tolk-dienst. Bij een onbedoelde verbreking
+// (bijv. wegvallend wifi) wordt automatisch opnieuw verbonden met oplopende
+// wachttijd; een bewuste sluit() stopt dat.
 export class TolkVerbinding {
   private ws: WebSocket | null = null;
+  private bewustGesloten = false;
+  private pogingen = 0;
 
   constructor(
     private url: string,
@@ -11,25 +18,51 @@ export class TolkVerbinding {
 
   verbind(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const ws = new WebSocket(this.url);
-      ws.binaryType = "arraybuffer";
-      ws.onopen = () => {
-        this.opVerbindingsstatus(true);
-        resolve();
-      };
-      ws.onerror = () => reject(new Error("WebSocket-verbinding mislukt"));
-      ws.onclose = () => this.opVerbindingsstatus(false);
-      ws.onmessage = (e) => {
-        if (typeof e.data === "string") {
-          this.opBericht(JSON.parse(e.data) as ServerBericht);
-        }
-      };
-      this.ws = ws;
+      this.ws = this.maakWebSocket(
+        () => {
+          this.opVerbindingsstatus(true);
+          resolve();
+        },
+        () => reject(new Error("WebSocket-verbinding mislukt")),
+      );
     });
   }
 
+  private maakWebSocket(opOpen: () => void, opFout?: () => void): WebSocket {
+    const ws = new WebSocket(this.url);
+    ws.binaryType = "arraybuffer";
+    ws.onopen = () => {
+      this.pogingen = 0;
+      opOpen();
+    };
+    ws.onerror = () => opFout?.();
+    ws.onmessage = (e) => {
+      if (typeof e.data === "string") {
+        this.opBericht(JSON.parse(e.data) as ServerBericht);
+      }
+    };
+    ws.onclose = () => {
+      this.opVerbindingsstatus(false);
+      if (!this.bewustGesloten) {
+        this.herverbind();
+      }
+    };
+    return ws;
+  }
+
+  private herverbind() {
+    const wacht = Math.min(1000 * 2 ** this.pogingen, MAX_WACHT_MS);
+    this.pogingen += 1;
+    setTimeout(() => {
+      if (this.bewustGesloten) return;
+      this.ws = this.maakWebSocket(() => this.opVerbindingsstatus(true));
+    }, wacht);
+  }
+
   stuurBericht(bericht: ClientBericht) {
-    this.ws?.send(JSON.stringify(bericht));
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(bericht));
+    }
   }
 
   stuurAudio(buffer: ArrayBuffer) {
@@ -39,6 +72,7 @@ export class TolkVerbinding {
   }
 
   sluit() {
+    this.bewustGesloten = true;
     this.ws?.close();
     this.ws = null;
   }

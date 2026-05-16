@@ -5,17 +5,14 @@ import { TALEN, taalNaam, isRtl } from "../lib/talen";
 import { OndertitelBericht, ServerBericht } from "../lib/protocol";
 import { TolkVerbinding } from "../lib/tolkVerbinding";
 import { AudioOpname } from "../lib/audio";
-
-const WS_URL = process.env.NEXT_PUBLIC_TOLK_WS ?? "ws://127.0.0.1:8765";
+import { wsUrl } from "../lib/config";
+import { Helft } from "./Helft";
+import { KoppelOverlay } from "./KoppelOverlay";
 
 type Fase = "instellen" | "actief" | "transcript";
 
 interface TranscriptRegel extends OndertitelBericht {
   tijd: number;
-}
-
-function tekstVoor(o: OndertitelBericht, leesTaal: string): string {
-  return o.bronTaal === leesTaal ? o.tekst : o.vertaling;
 }
 
 function tijdLabel(ms: number): string {
@@ -48,6 +45,7 @@ export default function TolkScherm() {
   const [taalB, setTaalB] = useState("ar");
   const [verbonden, setVerbonden] = useState(false);
   const [aanHetStarten, setAanHetStarten] = useState(false);
+  const [koppelOpen, setKoppelOpen] = useState(false);
   const [ondertitels, setOndertitels] = useState<OndertitelBericht[]>([]);
   const [transcript, setTranscript] = useState<TranscriptRegel[]>([]);
   const [foutmelding, setFoutmelding] = useState<string | null>(null);
@@ -84,10 +82,10 @@ export default function TolkScherm() {
     setTranscript([]);
     setAanHetStarten(true);
     try {
-      const verbinding = new TolkVerbinding(WS_URL, opBericht, setVerbonden);
+      const verbinding = new TolkVerbinding(wsUrl(), opBericht, setVerbonden);
+      verbindingRef.current = verbinding;
       await verbinding.verbind();
       verbinding.stuurBericht({ type: "start", taalA, taalB });
-      verbindingRef.current = verbinding;
 
       const opname = new AudioOpname();
       await opname.start((pcm) => verbinding.stuurAudio(pcm));
@@ -107,6 +105,7 @@ export default function TolkScherm() {
   async function stop() {
     verbindingRef.current?.stuurBericht({ type: "stop" });
     await ruimOp();
+    setKoppelOpen(false);
     setFase("transcript");
   }
 
@@ -228,56 +227,28 @@ export default function TolkScherm() {
       <Helft
         taal={taalA}
         ondertitels={recent}
-        verbonden={verbonden}
-        opStop={stop}
-      />
-    </div>
-  );
-}
-
-function Helft({
-  taal,
-  ondertitels,
-  boven,
-  verbonden,
-  opStop,
-}: {
-  taal: string;
-  ondertitels: OndertitelBericht[];
-  boven?: boolean;
-  verbonden?: boolean;
-  opStop?: () => void;
-}) {
-  const rtl = isRtl(taal);
-  return (
-    <section className={boven ? "helft helft-boven" : "helft"}>
-      <div className="helft-kop">
-        <span>{taalNaam(taal)}</span>
-        {opStop && (
-          <span>
-            <span style={{ marginRight: "1rem" }}>
-              {verbonden ? "verbonden" : "niet verbonden"}
-            </span>
-            <button className="knop knop-stop knop-klein" onClick={opStop}>
+        rechtsBoven={
+          <span className="helft-acties">
+            <span>{verbonden ? "verbonden" : "verbinding verbroken..."}</span>
+            <button
+              className="knop knop-klein"
+              onClick={() => setKoppelOpen(true)}
+            >
+              Tweede scherm
+            </button>
+            <button className="knop knop-stop knop-klein" onClick={stop}>
               Stoppen
             </button>
           </span>
-        )}
-      </div>
-      <div className="regels">
-        {ondertitels
-          .filter((o) => tekstVoor(o, taal).length > 0)
-          .map((o) => (
-            <p
-              key={o.id}
-              className={o.definitief ? "regel" : "regel regel-voorlopig"}
-              dir={rtl ? "rtl" : "ltr"}
-            >
-              <span className="spreker">spreker {o.spreker}</span>
-              {tekstVoor(o, taal)}
-            </p>
-          ))}
-      </div>
-    </section>
+        }
+      />
+      {koppelOpen && (
+        <KoppelOverlay
+          taalA={taalA}
+          taalB={taalB}
+          opSluiten={() => setKoppelOpen(false)}
+        />
+      )}
+    </div>
   );
 }

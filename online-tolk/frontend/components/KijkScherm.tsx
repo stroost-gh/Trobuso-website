@@ -5,6 +5,7 @@ import { Modus, OndertitelBericht, ServerBericht } from "../lib/protocol";
 import { TolkVerbinding } from "../lib/tolkVerbinding";
 import { wsUrl } from "../lib/config";
 import { Helft } from "./Helft";
+import { Kopbalk } from "./Kopbalk";
 
 // Tweede scherm: kijkt alleen mee, stuurt geen audio. Het koppelt met een
 // code (handmatig ingevoerd of meegegeven via de QR-code) en toont daarna
@@ -86,41 +87,53 @@ export default function KijkScherm() {
 
   if (!gemachtigd) {
     return (
-      <main className="instellen">
-        <h1>Tweede scherm</h1>
-        <p className="melding">Voer de koppelcode van het hoofdscherm in.</p>
-        <input
-          className="code-invoer"
-          inputMode="numeric"
-          value={codeInvoer}
-          placeholder="000000"
-          onChange={(e) =>
-            setCodeInvoer(e.target.value.replace(/\D/g, "").slice(0, 6))
-          }
-        />
-        <button
-          className="knop"
-          onClick={koppel}
-          disabled={!verbonden || codeInvoer.length < 6}
-        >
-          Koppelen
-        </button>
-        {fout && (
-          <p className="melding melding-fout">
-            Onjuiste code, of er is nog geen gesprek gestart.
-          </p>
-        )}
-        {!verbonden && <p className="melding">Verbinding maken...</p>}
-      </main>
+      <div className="pagina">
+        <Kopbalk />
+        <main className="midden">
+          <div className="paneel">
+            <h1 className="titel">Tweede scherm</h1>
+            <p className="ondertitel">
+              Voer de koppelcode van het hoofdscherm in.
+            </p>
+            <input
+              className="code-invoer"
+              inputMode="numeric"
+              value={codeInvoer}
+              placeholder="000000"
+              onChange={(e) =>
+                setCodeInvoer(e.target.value.replace(/\D/g, "").slice(0, 6))
+              }
+            />
+            <button
+              className="knop"
+              onClick={koppel}
+              disabled={!verbonden || codeInvoer.length < 6}
+            >
+              Koppelen
+            </button>
+            {fout && (
+              <p className="melding melding-fout">
+                Onjuiste code, of er is nog geen gesprek gestart.
+              </p>
+            )}
+            {!verbonden && <p className="melding">Verbinding maken...</p>}
+          </div>
+        </main>
+      </div>
     );
   }
 
   if (!taalA || !taalB || !actief) {
     return (
-      <main className="instellen">
-        <h1>Tweede scherm</h1>
-        <p className="melding">Verbonden — wachten op het gesprek...</p>
-      </main>
+      <div className="pagina">
+        <Kopbalk />
+        <main className="midden">
+          <div className="paneel">
+            <h1 className="titel">Tweede scherm</h1>
+            <p className="ondertitel">Verbonden — wachten op het gesprek...</p>
+          </div>
+        </main>
+      </div>
     );
   }
 

@@ -12,6 +12,7 @@ import {
 } from "../lib/audio";
 import { wsUrl } from "../lib/config";
 import { Helft } from "./Helft";
+import { Kopbalk } from "./Kopbalk";
 import { KoppelOverlay } from "./KoppelOverlay";
 
 type Fase = "instellen" | "actief" | "transcript";
@@ -176,116 +177,127 @@ export default function TolkScherm() {
   if (fase === "instellen") {
     const videocall = modus === "videocall";
     return (
-      <main className="instellen">
-        <h1>Online Tolk</h1>
-        <div className="moduskeuze">
-          <button
-            className={videocall ? "modusknop" : "modusknop actief"}
-            onClick={() => setModus("spreekkamer")}
-          >
-            Gesprek in de ruimte
-          </button>
-          <button
-            className={videocall ? "modusknop actief" : "modusknop"}
-            onClick={() => setModus("videocall")}
-          >
-            Videocall (Jitsi)
-          </button>
-        </div>
-        <div className="taalkeuze">
-          <div className="taalveld">
-            <label htmlFor="taalA">
-              {videocall ? "Uw taal" : "Taal onderzijde"}
-            </label>
-            <select
-              id="taalA"
-              value={taalA}
-              onChange={(e) => setTaalA(e.target.value)}
+      <div className="pagina">
+        <Kopbalk />
+        <main className="midden">
+          <div className="paneel">
+            <h1 className="titel">Nieuw gesprek</h1>
+            <p className="ondertitel">Kies de modus en de twee gesprekstalen.</p>
+            <div className="moduskeuze">
+              <button
+                className={videocall ? "modusknop" : "modusknop actief"}
+                onClick={() => setModus("spreekkamer")}
+              >
+                Gesprek in de ruimte
+              </button>
+              <button
+                className={videocall ? "modusknop actief" : "modusknop"}
+                onClick={() => setModus("videocall")}
+              >
+                Videocall (Jitsi)
+              </button>
+            </div>
+            <div className="taalkeuze">
+              <div className="taalveld">
+                <label htmlFor="taalA">
+                  {videocall ? "Uw taal" : "Taal onderzijde"}
+                </label>
+                <select
+                  id="taalA"
+                  value={taalA}
+                  onChange={(e) => setTaalA(e.target.value)}
+                >
+                  {TALEN.map((t) => (
+                    <option key={t.code} value={t.code}>
+                      {t.naam}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="taalveld">
+                <label htmlFor="taalB">
+                  {videocall ? "Taal gesprekspartner" : "Taal bovenzijde"}
+                </label>
+                <select
+                  id="taalB"
+                  value={taalB}
+                  onChange={(e) => setTaalB(e.target.value)}
+                >
+                  {TALEN.map((t) => (
+                    <option key={t.code} value={t.code}>
+                      {t.naam}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {videocall && (
+              <p className="hint">
+                Bij starten kiest u het tabblad met de videocall; vink
+                "tabblad-geluid delen" aan.
+              </p>
+            )}
+            <button
+              className="knop"
+              onClick={start}
+              disabled={taalA === taalB || aanHetStarten}
             >
-              {TALEN.map((t) => (
-                <option key={t.code} value={t.code}>
-                  {t.naam}
-                </option>
-              ))}
-            </select>
+              {aanHetStarten ? "Verbinden..." : "Gesprek starten"}
+            </button>
+            {taalA === taalB && (
+              <p className="melding">Kies twee verschillende talen.</p>
+            )}
+            {foutmelding && (
+              <p className="melding melding-fout">{foutmelding}</p>
+            )}
           </div>
-          <div className="taalveld">
-            <label htmlFor="taalB">
-              {videocall ? "Taal gesprekspartner" : "Taal bovenzijde"}
-            </label>
-            <select
-              id="taalB"
-              value={taalB}
-              onChange={(e) => setTaalB(e.target.value)}
-            >
-              {TALEN.map((t) => (
-                <option key={t.code} value={t.code}>
-                  {t.naam}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        {videocall && (
-          <p className="melding">
-            Bij starten kiest u het tabblad met de videocall; vink "tabblad-geluid
-            delen" aan.
-          </p>
-        )}
-        <button
-          className="knop"
-          onClick={start}
-          disabled={taalA === taalB || aanHetStarten}
-        >
-          {aanHetStarten ? "Verbinden..." : "Gesprek starten"}
-        </button>
-        {taalA === taalB && (
-          <p className="melding">Kies twee verschillende talen.</p>
-        )}
-        {foutmelding && <p className="melding melding-fout">{foutmelding}</p>}
-      </main>
+        </main>
+      </div>
     );
   }
 
   if (fase === "transcript") {
     return (
-      <main className="transcript">
-        <h1>Transcript</h1>
-        <p className="melding">
-          {transcript.length > 0
-            ? `${transcript.length} uitingen — ${taalNaam(taalA)} en ${taalNaam(taalB)}`
-            : "Er is geen gesprek opgenomen."}
-        </p>
-        <div className="transcript-lijst">
-          {transcript.map((r) => (
-            <div key={r.id} className="transcript-regel">
-              <div className="transcript-meta">
-                {tijdLabel(r.tijd)} · spreker {r.spreker} ·{" "}
-                {taalNaam(r.bronTaal)}
+      <div className="pagina">
+        <Kopbalk />
+        <main className="transcript">
+          <h1>Transcript</h1>
+          <p className="melding">
+            {transcript.length > 0
+              ? `${transcript.length} uitingen — ${taalNaam(taalA)} en ${taalNaam(taalB)}`
+              : "Er is geen gesprek opgenomen."}
+          </p>
+          <div className="transcript-lijst">
+            {transcript.map((r) => (
+              <div key={r.id} className="transcript-regel">
+                <div className="transcript-meta">
+                  {tijdLabel(r.tijd)} · spreker {r.spreker} ·{" "}
+                  {taalNaam(r.bronTaal)}
+                </div>
+                <p dir={isRtl(r.bronTaal) ? "rtl" : "ltr"}>{r.tekst}</p>
+                <p
+                  className="transcript-vertaling"
+                  dir={isRtl(r.doelTaal) ? "rtl" : "ltr"}
+                >
+                  {r.vertaling}
+                </p>
               </div>
-              <p dir={isRtl(r.bronTaal) ? "rtl" : "ltr"}>{r.tekst}</p>
-              <p
-                className="transcript-vertaling"
-                dir={isRtl(r.doelTaal) ? "rtl" : "ltr"}
-              >
-                {r.vertaling}
-              </p>
-            </div>
-          ))}
-        </div>
-        <div className="transcript-acties">
-          <button
-            className="knop"
-            onClick={downloadTranscript}
-            disabled={transcript.length === 0}
-          >
-            Transcript downloaden
-          </button>
-          <button className="knop knop-stop" onClick={nieuwGesprek}>
-            Nieuw gesprek
-          </button>
-        </div>
-      </main>
+            ))}
+          </div>
+          <div className="transcript-acties">
+            <button
+              className="knop"
+              onClick={downloadTranscript}
+              disabled={transcript.length === 0}
+            >
+              Transcript downloaden
+            </button>
+            <button className="knop knop-secundair" onClick={nieuwGesprek}>
+              Nieuw gesprek
+            </button>
+          </div>
+        </main>
+      </div>
     );
   }
 
@@ -306,7 +318,7 @@ export default function TolkScherm() {
           <span className="helft-acties">
             <span>{verbonden ? "verbonden" : "verbinding verbroken..."}</span>
             <button
-              className="knop knop-klein"
+              className="knop knop-secundair knop-klein"
               onClick={() => setKoppelOpen(true)}
             >
               Tweede scherm
